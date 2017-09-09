@@ -78,7 +78,8 @@ io.on('connection', function (socket) {
                 io.to(socketId).emit('edit', {
                     "startFrom": data.startFrom,
                     "contents": data.contents,
-                    "length": data.length
+                    "length": data.length,
+                    "index" : data.index
                 })
             }
 
@@ -86,8 +87,9 @@ io.on('connection', function (socket) {
             // emit 'block-chat' event  to the users
             else io.to(socketId).emit('edit', {
                 "startFrom": data.startFrom,
-                "contents": data.contents.replace(/[^\\n]/g, '◼︎'),
-                "length": data.length
+                "contents": data.contents && data.contents.replace(/[^\\n]/g, '◼︎'),
+                "length": data.length,
+                "index" : data.index
             });
         })
     });
