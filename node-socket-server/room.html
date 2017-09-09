@@ -33,15 +33,15 @@
             socket.on('notice', function (notice) {
                 $("#chatLogs").append("<div>" + notice.message + "</div>");
             })
-            
+
             socket.on("non-block-chat", function (data) {
                 console.log(data);
-                $("#chatLogs").append("<div>" + data.message + "</div>");
+                $("#chatLogs").append("<div>" + data + "</div>");
             });
 
             socket.on("block-chat", function (data) {
                 console.log(data)
-                $("#chatLogs").append("<div> BLOCKED :: " + data.message + "</div>");
+                $("#chatLogs").append("<div> BLOCKED :: " + data + "</div>");
             });
             // Send 버튼이 클릭되면
             $("form").submit(function (e) {
@@ -53,7 +53,8 @@
                 $("#chatLogs").append("<div> 당신 : " + $msgForm.val() + "</div>");
                 $("#msgForm").focus();
                 socket.emit("chat", {
-                    msg: $msgForm.val()
+                    contents: $msgForm.val(),
+                    "startFrom": 0
                 });
                 $msgForm.val("");
             });

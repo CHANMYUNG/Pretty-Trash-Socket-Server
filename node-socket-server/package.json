@@ -11,6 +11,7 @@
   "license": "ISC",
   "dependencies": {
     "express": "^4.15.4",
+    "node-mysql": "^0.4.2",
     "socket.io": "^2.0.3"
   }
 }
