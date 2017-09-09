@@ -48,7 +48,7 @@ io.on('connection', function (socket) {
             contents = contents.replaceAt(data.startFrom, data.contents);
         }
         if (data.index % 100 == 0)
-            sql.query("INSERT INTO contents_snapshots(`index`, `contents`) VALUES(?,?);", [results[0].MAX_INDEX, contents])
+            sql.query("INSERT INTO contents_snapshots(`index`, `contents`) VALUES(?,?);", [data.index, contents])
             .then((snapshot) => {
                 console.log(snapshot);
                 return;
