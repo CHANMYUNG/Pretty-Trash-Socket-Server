@@ -11,7 +11,7 @@ let contents = "";
 let currentIndex = 0;
 
 setInterval(function () {
-    sql.query("SELECT auto_increment FROM INFORMATION_SCHEMA.TABLES WHERE table_name='chat_logs'")
+    sql.query("SELECT `auto_increment` FROM INFORMATION_SCHEMA.TABLES WHERE table_name='chat_logs'")
         .then((result) => {
             if (result[0].auto_increment / 100 > currentIndex / 100) {
                 sql.query("INSERT INTO contents_snapshots(`index`, `contents`) VALUES(?,?);", [result[0].auto_increment, contents])
