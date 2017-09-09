@@ -54,9 +54,6 @@ io.on('connection', function (socket) {
                 return;
             })
         sql.query("INSERT INTO chat_logs(`name`, `startFrom`, `contents`, `length`) VALUES(?,?,?,?);", [sender, data.startFrom, data.contents, data.length])
-            .then((result) => {
-                return sql.query("SELECT MAX(chat_logs.index) MAX_INDEX FROM chat_logs;")
-            })
             .then((results) => {
                 return;
             })
