@@ -6,7 +6,28 @@ const io = require('socket.io')(server);
 
 let connections = {};
 
-let currentIndex = -1;
+let contents = "";
+
+let currentIndex = 0;
+
+setInterval(function () {
+    sql.query("SELECT auto_increment FROM INFORMATION_SCHEMA.TABLES WHERE talbe_name='chat_logs'")
+        .then((result) => {
+            if (result[0].auto_increment / 100 > currentIndex / 100) {
+                sql.query("INSERT INTO contents_snapshots(`index`, `contents`) VALUES(?,?);", [result[0].auto_increment, contents])
+                    .then((result) => {
+                        currentIndex = result[0].auto_increment / 100;
+                    })
+                    .catch((err) => {
+                        console.log(err);
+                    })
+            }
+        })
+        .catch((err) => {
+            console.log(err);
+        })
+}, 5000)
+
 
 String.prototype.replaceAt = function (index, replacement) {
     return this.substr(0, index) + replacement + this.substr(index + replacement.length);
@@ -17,8 +38,6 @@ String.prototype.deleteAt = function (index, length) {
     fixed.splice(index, -length);
     return fixed.join('');
 }
-
-let contents = "";
 
 const sql = require('./mysql');
 sql.connect();
@@ -38,7 +57,7 @@ io.on('connection', function (socket) {
     })
 
     socket.on("edit", function (data) {
-        if (data.index < currentIndex) data.index = currentIndex + 1;
+
         // get sender's name 
         sender = connections[`${socket.id}`];
 
@@ -50,16 +69,6 @@ io.on('connection', function (socket) {
             contents = contents.replaceAt(data.startFrom, data.contents);
         }
         console.log("DATA INDEX : " + data.index);
-
-        if (data.index % 100 == 0)
-            sql.query("INSERT INTO contents_snapshots(`index`, `contents`) VALUES(?,?);", [data.index, contents])
-            .then((snapshot) => {
-                console.log(snapshot);
-                return;
-            })
-            .catch((err) => {
-                console.log(err);
-            })
 
         sql.query("INSERT INTO chat_logs(`name`, `startFrom`, `contents`, `length`) VALUES(?,?,?,?);", [sender, data.startFrom, data.contents, data.length])
             .then((results) => {
