@@ -6,6 +6,8 @@ const io = require('socket.io')(server);
 
 let connections = {};
 
+let currentIndex = -1;
+
 String.prototype.replaceAt = function (index, replacement) {
     return this.substr(0, index) + replacement + this.substr(index + replacement.length);
 }
@@ -36,6 +38,7 @@ io.on('connection', function (socket) {
     })
 
     socket.on("edit", function (data) {
+        if (data.index < currentIndex) data.index = currentIndex + 1;
         // get sender's name 
         sender = connections[`${socket.id}`];
 
@@ -47,17 +50,17 @@ io.on('connection', function (socket) {
             contents = contents.replaceAt(data.startFrom, data.contents);
         }
         console.log("DATA INDEX : " + data.index);
-        try {
-            if (data.index % 100 == 0)
-                sql.query("INSERT INTO contents_snapshots(`index`, `contents`) VALUES(?,?);", [data.index, contents])
-                .then((snapshot) => {
-                    console.log(snapshot);
-                    return;
-                })
-        } catch (err) {
-            console.log(err);
-        }
-        
+
+        if (data.index % 100 == 0)
+            sql.query("INSERT INTO contents_snapshots(`index`, `contents`) VALUES(?,?);", [data.index, contents])
+            .then((snapshot) => {
+                console.log(snapshot);
+                return;
+            })
+            .catch((err) => {
+                console.log(err);
+            })
+
         sql.query("INSERT INTO chat_logs(`name`, `startFrom`, `contents`, `length`) VALUES(?,?,?,?);", [sender, data.startFrom, data.contents, data.length])
             .then((results) => {
                 return;
@@ -92,6 +95,8 @@ io.on('connection', function (socket) {
                 "index": data.index
             });
         })
+
+        currentIndex = data.index;
     });
 
     socket.on('disconnect', function () {
