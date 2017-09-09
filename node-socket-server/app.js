@@ -8,15 +8,16 @@ let connections = {};
 
 let contents = "";
 
-let currentIndex = 0;
+let currentSnapshotIndex = 0;
 
 setInterval(function () {
     sql.query("SELECT `auto_increment` FROM INFORMATION_SCHEMA.TABLES WHERE table_name='chat_logs'")
         .then((result) => {
-            if (result[0].auto_increment / 100 > currentIndex / 100) {
+            let nextSnapshotIndex = result[0].auto_increment - (result[0].auto_increment % 100);
+            if (nextSnapshotIndex > currentSnapshotIndex) {
                 sql.query("INSERT INTO contents_snapshots(`index`, `contents`) VALUES(?,?);", [result[0].auto_increment, contents])
                     .then((result) => {
-                        currentIndex = result[0].auto_increment / 100;
+                        currentSnapshotIndex = result[0].auto_increment / 100;
                     })
                     .catch((err) => {
                         console.log(err);
