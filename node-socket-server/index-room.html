@@ -39,6 +39,7 @@
                 console.log($msgForm.val());
                 // 서버로 메시지를 전송한다.
                 $("#chatLogs").append("<div>" + $msgForm.val() + "</div>");
+                $("#msgForm").focus();
                 socket.emit("chat", { msg: $msgForm.val() });
                 $msgForm.val("");
               });
