@@ -36,7 +36,7 @@ io.on('connection', function (socket) {
 
         contents = contents.replaceAt(chat.startFrom, chat.contents);
 
-        sql.query("INSERT INTO chat_logs(`name`, `startFrom`, `contents`) VALUES(?,?,?);", [sender, chat.startFrom, chat.contents])
+        sql.query("INSERT INTO chat_logs(`name`, `startFrom`, `contents`, `length`) VALUES(?,?,?,?);", [sender, chat.startFrom, chat.contents, chat.length])
             .then((result) => {
                 return sql.query("SELECT MAX(chat_logs.index) MAX_INDEX FROM chat_logs;")
             })
@@ -65,7 +65,8 @@ io.on('connection', function (socket) {
                 // emit 'non-block-chat' event  to the users
                 io.to(socketId).emit('edit', {
                     "startFrom": chat.startFrom,
-                    "contents": chat.contents
+                    "contents": chat.contents,
+                    "length": chat.length
                 })
             }
 
@@ -73,7 +74,8 @@ io.on('connection', function (socket) {
             // emit 'block-chat' event  to the users
             else io.to(socketId).emit('edit', {
                 "startFrom": chat.startFrom,
-                "contents": chat.contents.replace(/[^\\n]/g,'◼︎')
+                "contents": chat.contents.replace(/[^\\n]/g, '◼︎'),
+                "length": chat.length
             });
         })
     });
