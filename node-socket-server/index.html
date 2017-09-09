@@ -1,0 +1,39 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+    <meta charset="utf-8">
+    <title>Socket.io Chat Example</title>
+    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css">
+</head>
+
+<body>
+    <div class="container">
+        <h3>Socket.io Chat Example</h3>
+        <form class="form-inline">
+            <div class="form-group">
+                <label for="msgForm">닉네임 : </label>
+                <input type="text" class="form-control" id="nameForm">
+            </div>
+            <button type="submit" class="btn btn-primary">ENTER</button>
+        </form>
+        <div>WELCOME</div>
+    </div>
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/2.2.4/jquery.min.js"></script>
+    <script src="/socket.io/socket.io.js"></script>
+    <script>
+        $(function () {
+            // ENTER 버튼이 클릭되면
+            $("form").submit(function (e) {
+                console.log(e);
+                e.preventDefault();
+                var $nameForm = $("#nameForm");
+                console.log($nameForm.val());
+                localStorage.setItem('name', $nameForm.val());
+                location.href = "/room";
+            });
+        });
+    </script>
+</body>
+
+</html>

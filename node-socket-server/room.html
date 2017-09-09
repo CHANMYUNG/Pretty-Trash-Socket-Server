@@ -26,23 +26,38 @@
             // socket.io 서버에 접속한다
             var socket = io();
 
-            socket.on("chat", function(data) {
+            socket.emit('enter', {
+                "name": localStorage.getItem('name')
+            })
+
+            socket.on('notice', function (notice) {
+                $("#chatLogs").append("<div>" + notice.message + "</div>");
+            })
+            
+            socket.on("non-block-chat", function (data) {
                 console.log(data);
                 $("#chatLogs").append("<div>" + data.message + "</div>");
-              });
-          
-              // Send 버튼이 클릭되면
-              $("form").submit(function(e) {
-                  console.log(e);
+            });
+
+            socket.on("block-chat", function (data) {
+                console.log(data)
+                $("#chatLogs").append("<div> BLOCKED :: " + data.message + "</div>");
+            });
+            // Send 버튼이 클릭되면
+            $("form").submit(function (e) {
+                console.log(e);
                 e.preventDefault();
                 var $msgForm = $("#msgForm");
                 console.log($msgForm.val());
                 // 서버로 메시지를 전송한다.
-                $("#chatLogs").append("<div>" + $msgForm.val() + "</div>");
+                $("#chatLogs").append("<div> 당신 : " + $msgForm.val() + "</div>");
                 $("#msgForm").focus();
-                socket.emit("chat", { msg: $msgForm.val() });
+                socket.emit("chat", {
+                    msg: $msgForm.val()
+                });
                 $msgForm.val("");
-              });
+            });
+
         });
     </script>
 </body>
