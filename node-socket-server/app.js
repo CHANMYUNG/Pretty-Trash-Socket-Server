@@ -13,11 +13,12 @@ let currentSnapshotIndex = 0;
 setInterval(function () {
     sql.query("SELECT `auto_increment` FROM INFORMATION_SCHEMA.TABLES WHERE table_name='chat_logs'")
         .then((result) => {
+            console.log(result);
             let nextSnapshotIndex = result[0].auto_increment - (result[0].auto_increment % 100);
             if (nextSnapshotIndex > currentSnapshotIndex) {
-                sql.query("INSERT INTO contents_snapshots(`index`, `contents`) VALUES(?,?);", [result[0].auto_increment, contents])
+                sql.query("INSERT INTO contents_snapshots(`index`, `contents`) VALUES(?,?);", [nextSnapshotIndex, contents])
                     .then((result) => {
-                        currentSnapshotIndex = result[0].auto_increment / 100;
+                        currentSnapshotIndex = nextSnapshotIndex;
                     })
                     .catch((err) => {
                         console.log(err);
