@@ -73,7 +73,7 @@ io.on('connection', function (socket) {
             // emit 'block-chat' event  to the users
             else io.to(socketId).emit('edit', {
                 "startFrom": chat.startFrom,
-                "blockLength": chat.contents.length
+                "contents": chat.contents.replace(/[^\\n]/g,'◼︎')
             });
         })
     });
