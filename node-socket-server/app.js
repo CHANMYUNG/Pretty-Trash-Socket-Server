@@ -16,7 +16,7 @@ setInterval(function () {
             console.log(result);
             let nextSnapshotIndex = result[0].auto_increment - (result[0].auto_increment % 100);
             if (nextSnapshotIndex > currentSnapshotIndex) {
-                sql.query("INSERT INTO contents_snapshots(`index`, `contents`) VALUES(?,?);", [nextSnapshotIndex, contents])
+                sql.query("INSERT INTO contents_snapshots(`index`, `contents`) VALUES(?,?);", [result[0].auto_increment, contents])
                     .then((result) => {
                         currentSnapshotIndex = nextSnapshotIndex;
                     })
