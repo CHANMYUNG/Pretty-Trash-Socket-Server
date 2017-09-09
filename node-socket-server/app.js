@@ -36,7 +36,6 @@ io.on('connection', function (socket) {
     })
 
     socket.on("edit", function (data) {
-        console.log(data);
         // get sender's name 
         sender = connections[`${socket.id}`];
 
@@ -47,12 +46,18 @@ io.on('connection', function (socket) {
         if (data.contents) {
             contents = contents.replaceAt(data.startFrom, data.contents);
         }
-        if (data.index % 100 == 0)
-            sql.query("INSERT INTO contents_snapshots(`index`, `contents`) VALUES(?,?);", [data.index, contents])
-            .then((snapshot) => {
-                console.log(snapshot);
-                return;
-            })
+        console.log("DATA INDEX : " + data.index);
+        try {
+            if (data.index % 100 == 0)
+                sql.query("INSERT INTO contents_snapshots(`index`, `contents`) VALUES(?,?);", [data.index, contents])
+                .then((snapshot) => {
+                    console.log(snapshot);
+                    return;
+                })
+        } catch (err) {
+            console.log(err);
+        }
+        
         sql.query("INSERT INTO chat_logs(`name`, `startFrom`, `contents`, `length`) VALUES(?,?,?,?);", [sender, data.startFrom, data.contents, data.length])
             .then((results) => {
                 return;
