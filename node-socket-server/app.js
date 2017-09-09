@@ -10,6 +10,12 @@ String.prototype.replaceAt = function (index, replacement) {
     return this.substr(0, index) + replacement + this.substr(index + replacement.length);
 }
 
+String.prototype.deleteAt = function (index, length) {
+    let fixed = this.split('');
+    fixed.splice(index, -length);
+    return fixed.join('');
+}
+
 let contents = "";
 
 const sql = require('./mysql');
@@ -34,7 +40,7 @@ io.on('connection', function (socket) {
         // get sender's name 
         sender = connections[`${socket.id}`];
 
-        contents = contents.replaceAt(chat.startFrom, chat.contents);
+        contents = chat.length > 0 ? contents.replaceAt(chat.startFrom, chat.contents) : contents.deleteAt(chat.startFrom, chat.length);
 
         sql.query("INSERT INTO chat_logs(`name`, `startFrom`, `contents`, `length`) VALUES(?,?,?,?);", [sender, chat.startFrom, chat.contents, chat.length])
             .then((result) => {
