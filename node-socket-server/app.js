@@ -25,17 +25,11 @@ app.get('/room', function (req, res) {
 
 io.on('connection', function (socket) {
 
-    socket.on('enter', function (user) {
-        console.log(user.name);
-
-        io.emit('notice', {
-            "message": user.name + ' ENTERED'
-        });
-
+    socket.on('subscribe', function (user) {
         connections[socket.id] = user.name;
     })
 
-    socket.on("chat", function (chat) {
+    socket.on("edit", function (chat) {
         console.log(chat);
         // get sender's name 
         sender = connections[`${socket.id}`];
@@ -69,7 +63,7 @@ io.on('connection', function (socket) {
             // sender isn't me && the name doesn't same with other user
             if (connections[socketId] !== sender) {
                 // emit 'non-block-chat' event  to the users
-                io.to(socketId).emit('non-block-chat', {
+                io.to(socketId).emit('edit', {
                     "startFrom": chat.startFrom,
                     "contents": chat.contents
                 })
@@ -77,9 +71,9 @@ io.on('connection', function (socket) {
 
             // sender isn't me && the name same with other users
             // emit 'block-chat' event  to the users
-            else io.to(socketId).emit('block-chat', {
+            else io.to(socketId).emit('edit', {
                 "startFrom": chat.startFrom,
-                "length": chat.contents.length
+                "blockLength": chat.contents.length
             });
         })
     });
