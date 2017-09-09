@@ -35,20 +35,20 @@ io.on('connection', function (socket) {
         connections[socket.id] = user.name;
     })
 
-    socket.on("edit", function (chat) {
-        console.log(chat);
+    socket.on("edit", function (data) {
+        console.log(data);
         // get sender's name 
         sender = connections[`${socket.id}`];
 
         if (data.length && data.length < 0) {
-            contents = contents.deleteAt(chat.startFrom, chat.length);
+            contents = contents.deleteAt(data.startFrom, data.length);
         }
 
         if (data.contents) {
-            contents = contents.replaceAt(chat.startFrom, chat.contents);
+            contents = contents.replaceAt(data.startFrom, data.contents);
         }
 
-        sql.query("INSERT INTO chat_logs(`name`, `startFrom`, `contents`, `length`) VALUES(?,?,?,?);", [sender, chat.startFrom, chat.contents, chat.length])
+        sql.query("INSERT INTO chat_logs(`name`, `startFrom`, `contents`, `length`) VALUES(?,?,?,?);", [sender, data.startFrom, data.contents, data.length])
             .then((result) => {
                 return sql.query("SELECT MAX(chat_logs.index) MAX_INDEX FROM chat_logs;")
             })
@@ -76,18 +76,18 @@ io.on('connection', function (socket) {
             if (connections[socketId] !== sender) {
                 // emit 'non-block-chat' event  to the users
                 io.to(socketId).emit('edit', {
-                    "startFrom": chat.startFrom,
-                    "contents": chat.contents,
-                    "length": chat.length
+                    "startFrom": data.startFrom,
+                    "contents": data.contents,
+                    "length": data.length
                 })
             }
 
             // sender isn't me && the name same with other users
             // emit 'block-chat' event  to the users
             else io.to(socketId).emit('edit', {
-                "startFrom": chat.startFrom,
-                "contents": chat.contents.replace(/[^\\n]/g, '◼︎'),
-                "length": chat.length
+                "startFrom": data.startFrom,
+                "contents": data.contents.replace(/[^\\n]/g, '◼︎'),
+                "length": data.length
             });
         })
     });
