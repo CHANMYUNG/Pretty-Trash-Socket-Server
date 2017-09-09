@@ -40,18 +40,24 @@ io.on('connection', function (socket) {
         // get sender's name 
         sender = connections[`${socket.id}`];
 
-        contents = chat.length > 0 ? contents.replaceAt(chat.startFrom, chat.contents) : contents.deleteAt(chat.startFrom, chat.length);
+        if (data.length && data.length < 0) {
+            contents = contents.deleteAt(chat.startFrom, chat.length);
+        }
+
+        if (data.contents) {
+            contents = contents.replaceAt(chat.startFrom, chat.contents);
+        }
 
         sql.query("INSERT INTO chat_logs(`name`, `startFrom`, `contents`, `length`) VALUES(?,?,?,?);", [sender, chat.startFrom, chat.contents, chat.length])
             .then((result) => {
                 return sql.query("SELECT MAX(chat_logs.index) MAX_INDEX FROM chat_logs;")
             })
             .then((results) => {
-                console.log(results[0].MAX_INDEX % 100);
-                console.log("CONTENTS : " + contents);
                 if (results[0].MAX_INDEX % 100 == 0) {
+                    console.log("SNAPSHOT ::: ");
                     sql.query("INSERT INTO contents_snapshots(`index`, `contents`) VALUES(?,?);", [results[0].MAX_INDEX, contents])
                         .then((snapshot) => {
+                            console.log(snapshot);
                             return;
                         })
                 } else return;
