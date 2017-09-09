@@ -47,20 +47,18 @@ io.on('connection', function (socket) {
         if (data.contents) {
             contents = contents.replaceAt(data.startFrom, data.contents);
         }
-
+        if (data.index % 100 == 0)
+            sql.query("INSERT INTO contents_snapshots(`index`, `contents`) VALUES(?,?);", [results[0].MAX_INDEX, contents])
+            .then((snapshot) => {
+                console.log(snapshot);
+                return;
+            })
         sql.query("INSERT INTO chat_logs(`name`, `startFrom`, `contents`, `length`) VALUES(?,?,?,?);", [sender, data.startFrom, data.contents, data.length])
             .then((result) => {
                 return sql.query("SELECT MAX(chat_logs.index) MAX_INDEX FROM chat_logs;")
             })
             .then((results) => {
-                if (results[0].MAX_INDEX % 100 == 0) {
-                    console.log("SNAPSHOT ::: ");
-                    sql.query("INSERT INTO contents_snapshots(`index`, `contents`) VALUES(?,?);", [results[0].MAX_INDEX, contents])
-                        .then((snapshot) => {
-                            console.log(snapshot);
-                            return;
-                        })
-                } else return;
+                return;
             })
             .catch((err) => {
                 console.log(err);
@@ -79,7 +77,7 @@ io.on('connection', function (socket) {
                     "startFrom": data.startFrom,
                     "contents": data.contents,
                     "length": data.length,
-                    "index" : data.index
+                    "index": data.index
                 })
             }
 
@@ -89,7 +87,7 @@ io.on('connection', function (socket) {
                 "startFrom": data.startFrom,
                 "contents": data.contents && data.contents.replace(/[^\\n]/g, '◼︎'),
                 "length": data.length,
-                "index" : data.index
+                "index": data.index
             });
         })
     });
